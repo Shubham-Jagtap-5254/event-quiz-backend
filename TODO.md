@@ -1,23 +1,30 @@
-# MongoDB Atlas IP Whitelist Permanent Fix - TODO Steps
+# Spin Progress Persistence Task - TODO
 
-## 1. Atlas Dashboard (Manual, One-time)
-- [ ] Login: https://cloud.mongodb.com
-- [ ] Select your project/cluster
-- [ ] Sidebar → Security → Network Access (or Access Manager)
-- [ ] Click 'Add IP Address' → 'Allow Access from Anywhere' (0.0.0.0/0) → Confirm
-- [ ] Wait 1-2 min for propagation
+## Steps to Complete:
 
-## 2. Code Updates ✅
-- ✅ Update config/database.js (retry logic, no crash)
-- ✅ Update app.js (graceful start)
+### 1. Backend Model Update ✅
+- Edit `models/Lead.js`: Add `spins_used`, `spin_results` fields.
 
-## 3. Test
-- [ ] npm run dev (server starts, DB connects/retires)
-- [ ] curl http://localhost:5000/api/leads (works post-connect)
-- [ ] Check logs: 'MongoDB Atlas Connected...'
+### 2. Backend Controller Updates ✅
+- Edit `controllers/leadController.js`: Add `getLeadByPhoneInterest`, modify `updateLead` for spins, update `createLead`.
 
-## Notes
-- 0.0.0.0/0 allows any IP (dev-safe; prod: restrict/VPC)
-- If Atlas menu missing: cluster paused? Free tier limits? Browser cache clear.
+### 3. Backend Routes Update ✅
+- Edit `routes/leadRoutes.js`: Add GET `/by-phone`.
 
-Status: Starting code updates...
+### 4. Frontend API Update ✅
+- Edit `../Event-Quiz/project/src/api.ts`: Add `getLeadByPhoneInterest`.
+
+### 5. Frontend SpinWheel Update ✅
+- Edit `../Event-Quiz/project/src/components/SpinWheel.tsx`: Load progress on init, update after each spin, handle complete state.
+
+### 6. Test & Restart ✅
+- Backend updated; restart server.
+- Frontend fully updated.
+- Run `node server.js` (backend).
+- Test: Complete interest -> lead form -> OTP -> spin once -> refresh page -> spin wheel shows 2 left + previous score -> complete spins -> refresh shows results.
+- Admin panel shows updated best_score/tier/spins_used.
+
+## Progress: 6/6 completed
+
+Updated after each step.
+

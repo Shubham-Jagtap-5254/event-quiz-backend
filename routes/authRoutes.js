@@ -4,6 +4,8 @@ const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 // Brevo API setup
 const client = SibApiV3Sdk.ApiClient.instance;
+const apiKey = client.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
 const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // In-memory OTP storage
@@ -11,17 +13,10 @@ let otpStore = {};
 
 // 🧩 STEP 5: SEND OTP
 router.post("/send-otp", async (req, res) => {
-  let { email } = req.body;
+  const { email } = req.body;
 
   if (!email) {
     return res.status(400).json({ success: false, message: "Email is required" });
-  }
-
-  // Normalize and validate email
-  email = email.toLowerCase().trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ success: false, message: "Invalid email format" });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -32,14 +27,6 @@ router.post("/send-otp", async (req, res) => {
   };
 
   try {
-    const brevoKey = process.env.BREVO_API_KEY;
-    if (!brevoKey) {
-      console.error("Configuration Error: BREVO_API_KEY is missing.");
-      throw new Error("Email service configuration is incomplete.");
-    }
-
-    client.authentications["api-key"].apiKey = brevoKey;
-
     await emailApi.sendTransacEmail({
       sender: {
         email: process.env.SMTP_USER,
@@ -62,7 +49,7 @@ router.post("/send-otp", async (req, res) => {
 
     res.json({ success: true, message: "OTP sent successfully!" });
   } catch (err) {
-    console.error("Brevo Error Details:", JSON.stringify(err.response?.body || err.message, null, 2));
+    console.error("Brevo Error:", err.response?.body || err.message);
     res.status(500).json({ success: false, message: "Failed to send email." });
   }
 });
@@ -75,8 +62,7 @@ router.post("/verify-otp", (req, res) => {
     return res.status(400).json({ success: false, message: "Email and OTP are required" });
   }
 
-  const normalizedEmail = email.toLowerCase().trim();
-  const record = otpStore[normalizedEmail];
+  const record = otpStore[email];
 
   if (!record) {
     return res.status(400).json({ success: false, message: "No OTP found." });

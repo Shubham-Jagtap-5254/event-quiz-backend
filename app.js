@@ -3,26 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 
-// Check for required environment variables
-const requiredEnvs = [
-  'MONGODB_URI',
-  'JWT_SECRET',
-  'BREVO_API_KEY', // Used for general Brevo API calls
-  'SMTP_HOST',
-  'SMTP_PORT',
-  'SMTP_USER',
-  'SMTP_PASS' // This is your Brevo API key for SMTP authentication
-];
-
-console.log('Checking environment variables...');
-requiredEnvs.forEach(key => {
-  if (!process.env[key]) {
-    console.error(`ERROR: Missing environment variable ${key}`);
-  } else {
-    console.log(`✅ ${key} is loaded`);
-  }
-});
-
 // Initialize App
 const app = express();
 
@@ -34,15 +14,6 @@ connectDB().catch(() => {
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Catch JSON parsing errors to prevent 500 crashes on malformed requests
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    console.error(`Malformed JSON request received from ${req.ip}:`, err.message);
-    return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
-  }
-  next();
-});
 
 // Request Logging Middleware (Helpful for debugging 404s)
 app.use((req, res, next) => {
@@ -64,7 +35,7 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('Detailed Error Log:', err);
+  console.error(err.stack);
   res.status(err.status || 500).json({
     message: err.message || 'Internal Server Error',
     error: process.env.NODE_ENV === 'development' ? err : {}

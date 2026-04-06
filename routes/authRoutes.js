@@ -4,8 +4,6 @@ const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 // Brevo API setup
 const client = SibApiV3Sdk.ApiClient.instance;
-const apiKey = client.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
 const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // In-memory OTP storage
@@ -34,10 +32,13 @@ router.post("/send-otp", async (req, res) => {
   };
 
   try {
-    if (!process.env.BREVO_API_KEY) {
+    const brevoKey = process.env.BREVO_API_KEY;
+    if (!brevoKey) {
       console.error("Configuration Error: BREVO_API_KEY is missing.");
       throw new Error("Email service configuration is incomplete.");
     }
+
+    client.authentications["api-key"].apiKey = brevoKey;
 
     await emailApi.sendTransacEmail({
       sender: {

@@ -3,6 +3,22 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 
+// Check for required environment variables
+const requiredEnvs = [
+  'MONGODB_URI',
+  'JWT_SECRET',
+  'BREVO_API_KEY', // Used for general Brevo API calls
+  'SMTP_HOST',
+  'SMTP_PORT',
+  'SMTP_USER',
+  'SMTP_PASS' // This is your Brevo API key for SMTP authentication
+];
+requiredEnvs.forEach(key => {
+  if (!process.env[key]) {
+    console.error(`ERROR: Missing environment variable ${key}`);
+  }
+});
+
 // Initialize App
 const app = express();
 

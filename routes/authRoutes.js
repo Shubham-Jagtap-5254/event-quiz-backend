@@ -3,7 +3,6 @@ const router = express.Router();
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 // Brevo API setup
-console.log("Sender email:", process.env.SMTP_USER);
 const client = SibApiV3Sdk.ApiClient.instance;
 const apiKey = client.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY;
@@ -14,11 +13,6 @@ let otpStore = {};
 
 // 🧩 STEP 5: SEND OTP
 router.post("/send-otp", async (req, res) => {
-  console.log("=== SEND-OTP CALLED ===");
-  console.log("Email:", req.body.email);
-  console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
-  console.log("SMTP_USER exists:", !!process.env.SMTP_USER);
-  
   const { email } = req.body;
 
   if (!email) {
@@ -53,9 +47,9 @@ router.post("/send-otp", async (req, res) => {
       `,
     });
 
-res.json({ success: true, message: "OTP sent successfully!" });
+    res.json({ success: true, message: "OTP sent successfully!" });
   } catch (err) {
-    console.error("Full Brevo error:", JSON.stringify(err, null, 2));
+    console.error("Brevo Error:", err.response?.body || err.message);
     res.status(500).json({ success: false, message: "Failed to send email." });
   }
 });

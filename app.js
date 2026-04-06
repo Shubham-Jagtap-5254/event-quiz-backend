@@ -1,9 +1,4 @@
 require('dotenv').config();
-
-console.log("=== ENV DEBUG ===");
-console.log("BREVO_API_KEY:", process.env.BREVO_API_KEY ? process.env.BREVO_API_KEY.slice(0,10) + '...' : 'UNDEFINED');
-console.log("SMTP_USER:", process.env.SMTP_USER || 'UNDEFINED');
-
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');

@@ -13,9 +13,13 @@ const requiredEnvs = [
   'SMTP_USER',
   'SMTP_PASS' // This is your Brevo API key for SMTP authentication
 ];
+
+console.log('Checking environment variables...');
 requiredEnvs.forEach(key => {
   if (!process.env[key]) {
     console.error(`ERROR: Missing environment variable ${key}`);
+  } else {
+    console.log(`✅ ${key} is loaded`);
   }
 });
 
@@ -51,7 +55,7 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Detailed Error Log:', err);
   res.status(err.status || 500).json({
     message: err.message || 'Internal Server Error',
     error: process.env.NODE_ENV === 'development' ? err : {}

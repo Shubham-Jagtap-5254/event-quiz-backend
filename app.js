@@ -35,6 +35,15 @@ connectDB().catch(() => {
 app.use(cors());
 app.use(express.json());
 
+// Catch JSON parsing errors to prevent 500 crashes on malformed requests
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error(`Malformed JSON request received from ${req.ip}:`, err.message);
+    return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
+  }
+  next();
+});
+
 // Request Logging Middleware (Helpful for debugging 404s)
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);

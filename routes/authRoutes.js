@@ -13,10 +13,17 @@ let otpStore = {};
 
 // 🧩 STEP 5: SEND OTP
 router.post("/send-otp", async (req, res) => {
-  const { email } = req.body;
+  let { email } = req.body;
 
   if (!email) {
     return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
+  // Normalize and validate email
+  email = email.toLowerCase().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, message: "Invalid email format" });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -27,6 +34,11 @@ router.post("/send-otp", async (req, res) => {
   };
 
   try {
+    if (!process.env.BREVO_API_KEY) {
+      console.error("Configuration Error: BREVO_API_KEY is missing.");
+      throw new Error("Email service configuration is incomplete.");
+    }
+
     await emailApi.sendTransacEmail({
       sender: {
         email: process.env.SMTP_USER,
@@ -49,7 +61,7 @@ router.post("/send-otp", async (req, res) => {
 
     res.json({ success: true, message: "OTP sent successfully!" });
   } catch (err) {
-    console.error("Brevo Error:", err.response?.body || err.message);
+    console.error("Brevo Error Details:", JSON.stringify(err.response?.body || err.message, null, 2));
     res.status(500).json({ success: false, message: "Failed to send email." });
   }
 });
@@ -62,7 +74,8 @@ router.post("/verify-otp", (req, res) => {
     return res.status(400).json({ success: false, message: "Email and OTP are required" });
   }
 
-  const record = otpStore[email];
+  const normalizedEmail = email.toLowerCase().trim();
+  const record = otpStore[normalizedEmail];
 
   if (!record) {
     return res.status(400).json({ success: false, message: "No OTP found." });

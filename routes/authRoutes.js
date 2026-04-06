@@ -13,6 +13,11 @@ let otpStore = {};
 
 // 🧩 STEP 5: SEND OTP
 router.post("/send-otp", async (req, res) => {
+  console.log("=== SEND-OTP CALLED ===");
+  console.log("Email:", req.body.email);
+  console.log("BREVO_API_KEY exists:", !!process.env.BREVO_API_KEY);
+  console.log("SMTP_USER exists:", !!process.env.SMTP_USER);
+  
   const { email } = req.body;
 
   if (!email) {

@@ -1,7 +1,6 @@
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./config/database');
+
+console.log("=== ENV DEBUG ==
 
 // Initialize App
 const app = express();

@@ -22,8 +22,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/leads', require('./routes/leadRoutes'));
+app.use('/api/leads-legacy', require('./routes/authRoutes')); // Keep existing email OTP if needed
 
 // Health Check Route
 app.get('/health', (req, res) => {

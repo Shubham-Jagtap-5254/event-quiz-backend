@@ -13,7 +13,7 @@ connectDB().catch(() => {
 
 // Middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://event-quiz-frontend.onrender.com'], // Add your actual frontend URL here
+  origin: ['http://localhost:5173', 'https://event-quiz-frontend.onrender.com', 'https://event-quiz-f2882.web.app'], // Add your actual frontend URL here
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

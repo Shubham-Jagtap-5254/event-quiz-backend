@@ -6,7 +6,7 @@ const Lead = require('./models/Lead');
 
 const app = express();
 const corsOptions = {
-  origin: true, // Reflects the request origin (useful for development)
+  origin: ['http://localhost:5173', 'https://event-quiz-frontend.onrender.com'], // Explicitly allow frontend origins
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

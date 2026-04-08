@@ -12,7 +12,15 @@ connectDB().catch(() => {
 });
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: ['http://localhost:5173', 'https://event-quiz-frontend.onrender.com'], // Add your actual frontend URL here
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Request Logging Middleware (Helpful for debugging 404s)

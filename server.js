@@ -5,7 +5,15 @@ const cors = require('cors');
 const Lead = require('./models/Lead');
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: true, // Reflects the request origin (useful for development)
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes

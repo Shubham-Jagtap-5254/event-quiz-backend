@@ -11,9 +11,15 @@ connectDB().catch(() => {
   console.log('Initial DB connect failed - server continues (retries ongoing)');
 });
 
+// Request Logging Middleware - Move to TOP to debug if requests reach the server
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.get('Origin')}`);
+  next();
+});
+
 // Middleware
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://event-quiz-frontend.onrender.com', 'https://event-quiz-f2882.web.app'], // Add your actual frontend URL here
+  origin: ['http://localhost:5173', 'https://event-quiz-f2882.web.app', 'https://event-quiz-frontend.onrender.com'], 
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -22,12 +28,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-
-// Request Logging Middleware (Helpful for debugging 404s)
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));

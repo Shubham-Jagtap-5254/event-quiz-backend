@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 
 // Middleware
 const corsOptions = {
-  origin: true, // Dynamically allow the origin of the request (useful for matching subdomains/Firebase URLs)
+  origin: ['http://localhost:5173', 'https://event-quiz-f2882.web.app', 'https://event-quiz-frontend.onrender.com'],
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true,
@@ -31,6 +31,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Event Quiz API is running' });
+});
+
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/leads', require('./routes/leadRoutes'));
 app.use('/api/leads-legacy', require('./routes/authRoutes')); // Keep existing email OTP if needed
@@ -54,7 +58,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 

@@ -49,7 +49,10 @@ exports.getLeadByPhoneInterest = async (req, res) => {
     if (!phone || !interest) {
       return res.status(400).json({ error: 'phone and interest required' });
     }
+    console.log(`Searching for lead: ${phone} / ${interest}`);
     const lead = await Lead.findOne({ phone, interest });
+    console.log(`DB Result found: ${lead ? 'Yes' : 'No'}`);
+    
     if (!lead) {
       return res.status(404).json({ error: 'Lead not found' });
     }
@@ -75,4 +78,3 @@ exports.getAllLeads = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-

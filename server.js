@@ -41,13 +41,12 @@ app.post('/api/leads', async (req, res) => {
   }
 });
 
-// PATCH: Update score/tier after game
+// PATCH: Update lead information
 app.patch('/api/leads/:id', async (req, res) => {
   try {
-    const { best_score, tier } = req.body;
     const lead = await Lead.findByIdAndUpdate(
       req.params.id,
-      { best_score, tier },
+      req.body,
       { new: true }
     );
     res.json(lead);
@@ -66,7 +65,7 @@ app.get('/api/leads', async (req, res) => {
     }
 
     const leads = await Lead.find(query)
-      .sort({ best_score: sort === 'desc' ? -1 : 1 });
+      .sort({ created_at: sort === 'desc' ? -1 : 1 });
     
     res.json(leads);
   } catch (error) {

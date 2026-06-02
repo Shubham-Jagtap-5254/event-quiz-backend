@@ -8,7 +8,7 @@ const leadSchema = new mongoose.Schema({
   companyName: { type: String },
   otherInfo: { type: String },
   best_score: { type: Number, default: 0 },
-  tier: { type: String, enum: ['Bronze', 'Silver', 'Gold', 'Platinum'], default: 'Bronze' },
+  tier: { type: String, enum: ['Platinum', 'Gold', 'Silver', 'Bronze', 'None'], default: 'None' },
   spins_used: { type: Number, default: 0, min: 0, max: 3 },
   spin_results: [{
     score: { type: Number, required: true }

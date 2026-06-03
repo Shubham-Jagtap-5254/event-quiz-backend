@@ -38,17 +38,6 @@ app.get('/', (req, res) => {
 // Leads Router
 const leadsRouter = express.Router();
 
-// POST: Reset all winning tiers to 'None'
-leadsRouter.post('/reset-tiers', async (req, res, next) => {
-  try {
-    const result = await Lead.updateMany({}, { $set: { tier: 'None' } });
-    console.log('Reset operation completed:', result);
-    res.json({ message: 'All winning tiers have been reset successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // GET: Find lead by phone and interest (Required by api.ts)
 leadsRouter.get('/by-phone', async (req, res) => {
   try {
@@ -99,6 +88,17 @@ leadsRouter.get('/', async (req, res) => {
       .sort({ created_at: sort === 'desc' ? -1 : 1 });
     
     res.json(leads);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST: Reset all winning tiers (Direct Mount)
+app.post('/api/leads/reset-tiers', async (req, res) => {
+  try {
+    const result = await Lead.updateMany({}, { $set: { tier: 'None' } });
+    console.log('Reset operation completed:', result);
+    res.json({ message: 'All winning tiers have been reset successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

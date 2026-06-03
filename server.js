@@ -30,8 +30,28 @@ mongoose.connect(process.env.MONGODB_URI, {
     process.exit(1);
   });
 
+// Root Route for Health Check
+app.get('/', (req, res) => {
+  res.json({ status: 'Server is running', version: '1.1.0' });
+});
+
+// Leads Router
+const leadsRouter = express.Router();
+
+// GET: Find lead by phone and interest (Required by api.ts)
+leadsRouter.get('/by-phone', async (req, res) => {
+  try {
+    const { phone, interest } = req.query;
+    const lead = await Lead.findOne({ phone, interest });
+    if (!lead) return res.status(404).json({ message: 'Lead not found' });
+    res.json(lead);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST: Create initial lead
-app.post('/api/leads', async (req, res) => {
+leadsRouter.post('/', async (req, res) => {
   try {
     const lead = new Lead(req.body);
     await lead.save();
@@ -41,18 +61,8 @@ app.post('/api/leads', async (req, res) => {
   }
 });
 
-// POST: Reset all winning tiers to 'None'
-app.post('/api/leads/reset-tiers', async (req, res) => {
-  try {
-    await Lead.updateMany({}, { $set: { tier: 'None' } });
-    res.json({ message: 'All winning tiers have been reset successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // PATCH: Update lead information
-app.patch('/api/leads/:id', async (req, res) => {
+leadsRouter.patch('/:id', async (req, res) => {
   try {
     const lead = await Lead.findByIdAndUpdate(
       req.params.id,
@@ -66,7 +76,7 @@ app.patch('/api/leads/:id', async (req, res) => {
 });
 
 // GET: Admin list with basic filter/sort
-app.get('/api/leads', async (req, res) => {
+leadsRouter.get('/', async (req, res) => {
   try {
     const { interest, sort = 'desc' } = req.query;
     let query = {};
@@ -82,6 +92,20 @@ app.get('/api/leads', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// POST: Reset all winning tiers
+// Defined directly on app to guarantee matching before router mounting
+app.post('/api/leads/reset-tiers', async (req, res) => {
+  try {
+    await Lead.updateMany({}, { $set: { tier: 'None' } });
+    res.json({ message: 'All winning tiers have been reset successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mount the router
+app.use('/api/leads', leadsRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

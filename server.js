@@ -41,7 +41,7 @@ app.post('/api/leads', async (req, res) => {
   }
 });
 
-// POST: Reset all winning tiers
+// POST: Reset all winning tiers to 'None'
 app.post('/api/leads/reset-tiers', async (req, res) => {
   try {
     await Lead.updateMany({}, { $set: { tier: 'None' } });

@@ -41,6 +41,16 @@ app.post('/api/leads', async (req, res) => {
   }
 });
 
+// POST: Reset all winning tiers
+app.post('/api/leads/reset-tiers', async (req, res) => {
+  try {
+    await Lead.updateMany({}, { $set: { tier: 'None' } });
+    res.json({ message: 'All winning tiers have been reset successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // PATCH: Update lead information
 app.patch('/api/leads/:id', async (req, res) => {
   try {

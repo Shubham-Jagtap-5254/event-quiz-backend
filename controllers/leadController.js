@@ -72,9 +72,39 @@ exports.getAllLeads = async (req, res) => {
     }
     const leads = await Lead.find(query)
       .sort({ best_score: sort === 'desc' ? -1 : 1 });
-    
+
     res.json(leads);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Reset all tiers / winners
+// - best_score: 0
+// - tier: 'None'
+// - spins_used: 0
+// - spin_results: []
+exports.resetAllTiers = async (req, res) => {
+  try {
+    const result = await Lead.updateMany(
+      {},
+      {
+        $set: {
+          best_score: 0,
+          tier: 'None',
+          spins_used: 0,
+          spin_results: []
+        }
+      }
+    );
+
+    res.json({
+      message: 'Tiers reset successfully',
+      modifiedCount: result.modifiedCount ?? result.nModified ?? null,
+      matchedCount: result.matchedCount ?? result.n ?? null,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

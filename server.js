@@ -93,19 +93,12 @@ leadsRouter.get('/', async (req, res) => {
   }
 });
 
-// POST: Reset all winning tiers (Direct Mount)
-app.post('/api/leads/reset-tiers', async (req, res) => {
-  try {
-    const result = await Lead.updateMany({}, { $set: { tier: 'None' } });
-    console.log('Reset operation completed:', result);
-    res.json({ message: 'All winning tiers have been reset successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Reset is handled by routes/leadRoutes.js mounted in app.js.
+// (server.js is legacy; keep minimal to avoid conflicting endpoints.)
 
 // Mount the router
 app.use('/api/leads', leadsRouter);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

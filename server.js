@@ -38,11 +38,11 @@ app.get('/', (req, res) => {
 // Leads Router
 const leadsRouter = express.Router();
 
-// POST: Reset all winning tiers
-// Placed at the top of the router to ensure it matches correctly
-leadsRouter.post('/reset-tiers', async (req, res) => {
+// POST: Reset all winning tiers to 'None'
+leadsRouter.post('/reset-tiers', async (req, res, next) => {
   try {
-    await Lead.updateMany({}, { $set: { tier: 'None' } });
+    const result = await Lead.updateMany({}, { $set: { tier: 'None' } });
+    console.log('Reset operation completed:', result);
     res.json({ message: 'All winning tiers have been reset successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

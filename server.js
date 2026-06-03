@@ -38,6 +38,17 @@ app.get('/', (req, res) => {
 // Leads Router
 const leadsRouter = express.Router();
 
+// POST: Reset all winning tiers
+// Placed at the top of the router to ensure it matches correctly
+leadsRouter.post('/reset-tiers', async (req, res) => {
+  try {
+    await Lead.updateMany({}, { $set: { tier: 'None' } });
+    res.json({ message: 'All winning tiers have been reset successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET: Find lead by phone and interest (Required by api.ts)
 leadsRouter.get('/by-phone', async (req, res) => {
   try {
@@ -88,17 +99,6 @@ leadsRouter.get('/', async (req, res) => {
       .sort({ created_at: sort === 'desc' ? -1 : 1 });
     
     res.json(leads);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST: Reset all winning tiers
-// Defined directly on app to guarantee matching before router mounting
-app.post('/api/leads/reset-tiers', async (req, res) => {
-  try {
-    await Lead.updateMany({}, { $set: { tier: 'None' } });
-    res.json({ message: 'All winning tiers have been reset successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

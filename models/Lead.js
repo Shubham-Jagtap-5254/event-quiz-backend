@@ -4,7 +4,7 @@ const leadSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true },
   email: { type: String },
-  interest: { type: String, enum: ['HR Bridge', 'Digi Bridge', 'Both'], required: true },
+  interest: { type: String, enum: ['Jims HR', 'Digi Bridge', 'Both'], required: true },
   companyName: { type: String },
   otherInfo: { type: String },
   best_score: { type: Number, default: 0 },

@@ -79,6 +79,29 @@ exports.getAllLeads = async (req, res) => {
   }
 };
 
+exports.submitQuestionnaire = async (req, res) => {
+  try {
+    const { answers } = req.body;
+    if (!answers) {
+      return res.status(400).json({ error: 'answers object required' });
+    }
+
+    const lead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      { questionnaire_answers: answers },
+      { new: true }
+    );
+
+    if (!lead) {
+      return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    res.json(lead);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Reset all tiers / winners
 // - best_score: 0
 // - tier: 'None'

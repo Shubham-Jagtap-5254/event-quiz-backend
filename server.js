@@ -75,6 +75,30 @@ leadsRouter.patch('/:id', async (req, res) => {
   }
 });
 
+// POST: Submit questionnaire answers for a lead
+leadsRouter.post('/:id/questionnaire', async (req, res) => {
+  try {
+    const { answers } = req.body;
+    if (!answers) {
+      return res.status(400).json({ error: 'answers object required' });
+    }
+
+    const lead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      { questionnaire_answers: answers },
+      { new: true }
+    );
+
+    if (!lead) {
+      return res.status(404).json({ error: 'Lead not found' });
+    }
+
+    res.json(lead);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // GET: Admin list with basic filter/sort
 leadsRouter.get('/', async (req, res) => {
   try {

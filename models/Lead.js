@@ -13,6 +13,11 @@ const leadSchema = new mongoose.Schema({
   spin_results: [{
     score: { type: Number, required: true }
   }],
+  questionnaire_answers: {
+    serviceSelection: { type: String },
+    digiAnswers: { type: Map, of: String },
+    hrAnswers: { type: Map, of: String }
+  },
   created_at: { type: Date, default: Date.now }
 });
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { sendOtp, verifyOtp, resendOtp } = require("../utils/sendMsg91Otp");
+const { sendOtp, verifyOtp, resendOtp, checkBalance } = require("../utils/sendMsg91Otp");
 
 router.post("/send-otp", async (req, res) => {
   try {
@@ -105,3 +105,21 @@ router.post("/resend-otp", async (req, res) => {
 });
 
 module.exports = router;
+
+router.get("/balance", async (req, res) => {
+  try {
+    const data = await checkBalance();
+    res.json({
+      success: true,
+      message: "MSG91 account balance retrieved",
+      data,
+    });
+  } catch (error) {
+    console.error("MSG91 Balance Error:", error.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve balance",
+      error: error.response?.data || error.message,
+    });
+  }
+});

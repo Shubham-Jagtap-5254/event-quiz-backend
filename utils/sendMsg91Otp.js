@@ -15,33 +15,35 @@ const sendOtp = async ({ mobile, templateParams, otpExpiry }) => {
     ...(otpExpiry && { otp_expiry: otpExpiry }),
   };
 
-  const config = {
-    headers: {
-      "Content-Type": "application/json",
-      authkey: process.env.MSG91_AUTH_KEY,
-    },
-  };
-
   const response = await axios.post(
     `${MSG91_BASE_URL}/otp`,
     templateParams || {},
-    { params, ...config }
+    {
+      params,
+      headers: {
+        "Content-Type": "application/json",
+        authkey: process.env.MSG91_AUTH_KEY,
+      },
+    }
   );
 
   return response.data;
 };
 
 const verifyOtp = async ({ mobile, otp }) => {
-  const response = await axios.get(`${MSG91_BASE_URL}/otp/verify`, {
-    params: {
-      mobile: normalizeMobile(mobile),
-      otp,
-      realTimeResponse: 1,
-    },
-    headers: {
-      authkey: process.env.MSG91_AUTH_KEY,
-    },
-  });
+  const response = await axios.get(
+    `${MSG91_BASE_URL}/otp/verify`,
+    {
+      params: {
+        mobile: normalizeMobile(mobile),
+        otp,
+        realTimeResponse: 1,
+      },
+      headers: {
+        authkey: process.env.MSG91_AUTH_KEY,
+      },
+    }
+  );
 
   return response.data;
 };
@@ -67,4 +69,22 @@ const resendOtp = async ({ mobile, retrytype = "text" }) => {
   return response.data;
 };
 
-module.exports = { sendOtp, verifyOtp, resendOtp };
+const checkBalance = async () => {
+  const response = await axios.get(
+    "http://control.msg91.com/api/balance.php",
+    {
+      params: {
+        authkey: process.env.MSG91_AUTH_KEY,
+        type: "106",
+      },
+      headers: {
+        authkey: process.env.MSG91_AUTH_KEY,
+      },
+      timeout: 10000,
+    }
+  );
+
+  return response.data;
+};
+
+module.exports = { sendOtp, verifyOtp, resendOtp, checkBalance };

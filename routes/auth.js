@@ -1,67 +1,107 @@
 const express = require("express");
 const router = express.Router();
-const sendSMS = require("../utils/sendSms");
+const { sendOtp, verifyOtp, resendOtp } = require("../utils/sendMsg91Otp");
 
-// Temporary storage for OTPs. 
-// Note: In production, use Redis or a Database with a TTL index.
-const otpStore = {}; 
-
-// Helper to generate a 6-digit numeric OTP
-const generateOTP = () =>
-  Math.floor(100000 + Math.random() * 900000).toString();
-
-router.post("/send-sms-otp", async (req, res) => {
+router.post("/send-otp", async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { mobile } = req.body;
 
-    if (!phone) {
-      return res.status(400).json({ message: "Phone number is required" });
+    if (!mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number is required",
+      });
     }
 
-    const otp = generateOTP();
+    const data = await sendOtp({
+      mobile,
+      otpExpiry: process.env.MSG91_OTP_EXPIRY,
+    });
 
-    // Store OTP with a 5-minute expiration
-    otpStore[phone] = {
-      otp,
-      expires: Date.now() + 5 * 60 * 1000,
-    };
+    const type = data?.type;
+    const isSuccess = type === "success" || type === "Success" || type === 1;
 
-    await sendSMS(phone, `Your verification code is: ${otp}`);
-
-    res.json({ success: true, message: "OTP sent successfully" });
-  } catch (err) {
-    console.error("Route Error:", err);
-    res.status(500).json({ message: "Failed to process SMS request" });
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+      data,
+      ...(isSuccess && { message_id: data?.message }),
+    });
+  } catch (error) {
+    console.error("MSG91 Send OTP Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      success: false,
+      message: "Failed to send OTP",
+      error: error.response?.data || error.message,
+    });
   }
 });
 
-router.post("/verify-sms-otp", (req, res) => {
-  const { phone, otp } = req.body;
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { mobile, otp } = req.body;
 
-  if (!phone || !otp) {
-    return res.status(400).json({ message: "Phone and OTP are required" });
+    if (!mobile || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number and OTP are required",
+      });
+    }
+
+    const data = await verifyOtp({ mobile, otp });
+
+    const type = data?.type;
+    const isSuccess = type === "success" || type === "Success" || type === 1;
+
+    if (!isSuccess) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+        data,
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "OTP verified successfully",
+      data,
+    });
+  } catch (error) {
+    console.error("MSG91 Verify OTP Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 400).json({
+      success: false,
+      message: "Invalid or expired OTP",
+      error: error.response?.data || error.message,
+    });
   }
+});
 
-  const record = otpStore[phone];
+router.post("/resend-otp", async (req, res) => {
+  try {
+    const { mobile } = req.body;
 
-  if (!record) {
-    return res.status(400).json({ message: "No OTP found for this number" });
+    if (!mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "Mobile number is required",
+      });
+    }
+
+    const data = await resendOtp({ mobile });
+
+    res.json({
+      success: true,
+      message: "OTP resent successfully",
+      data,
+    });
+  } catch (error) {
+    console.error("MSG91 Resend OTP Error:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      success: false,
+      message: "Failed to resend OTP",
+      error: error.response?.data || error.message,
+    });
   }
-
-  if (Date.now() > record.expires) {
-    delete otpStore[phone];
-    return res.status(400).json({ message: "OTP has expired" });
-  }
-
-  // Ensure both are strings for comparison
-  if (record.otp !== otp.toString()) {
-    return res.status(400).json({ message: "Invalid verification code" });
-  }
-
-  // Success: Remove the OTP after successful verification
-  delete otpStore[phone];
-
-  res.json({ success: true, message: "Phone number verified successfully" });
 });
 
 module.exports = router;

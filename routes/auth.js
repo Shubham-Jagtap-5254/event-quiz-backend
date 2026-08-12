@@ -25,7 +25,7 @@ router.post("/send-otp", async (req, res) => {
       success: true,
       message: "OTP sent successfully",
       data,
-      ...(isSuccess && { message_id: data?.message }),
+      ...(isSuccess && { request_id: data?.request_id }),
     });
   } catch (error) {
     console.error("MSG91 Send OTP Error:", error.response?.data || error.message);

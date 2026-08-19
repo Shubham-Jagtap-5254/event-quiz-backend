@@ -3,7 +3,22 @@ const axios = require("axios");
 const MSG91_BASE_URL = "https://control.msg91.com/api/v5";
 
 const normalizeMobile = (mobile) => {
-  return String(mobile).replace(/\D/g, "");
+  // Remove all non-digit characters and leading +
+  let normalized = String(mobile).replace(/\D/g, "");
+
+  // If number already has a country code (11-15 digits), use as-is
+  if (normalized.length >= 11) {
+    return normalized;
+  }
+
+  // For 10-digit numbers, default to India country code (91)
+  if (normalized.length === 10) {
+    return "91" + normalized;
+  }
+
+  // For numbers shorter than 10 (e.g. Australia 8-digit local),
+  // can't guess — return as-is and let MSG91 handle
+  return normalized;
 };
 
 const sendOtp = async ({ mobile, templateParams, otpExpiry }) => {
